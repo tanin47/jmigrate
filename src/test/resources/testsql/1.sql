@@ -1,6 +1,6 @@
 # --- !Ups
 
-CREATE TABLE "migratedb_test_user"
+CREATE TABLE "jmigrate_test_user"
 (
     id TEXT PRIMARY KEY DEFAULT ('user-' || gen_random_uuid()),
     username TEXT NOT NULL,
@@ -10,4 +10,4 @@ CREATE TABLE "migratedb_test_user"
 
 # --- !Downs
 
-DROP TABLE "migratedb_test_user";
+DROP TABLE "jmigrate_test_user";

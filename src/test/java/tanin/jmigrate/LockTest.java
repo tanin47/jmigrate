@@ -27,7 +27,7 @@ public class LockTest extends Base {
       migrate.migrate();
     });
     assertEquals(
-      "Unable to acquire the lock for MigrateDB. If you are certain no process is running, please clear the table `jmigrate_lock` and try again.",
+      "Unable to acquire the lock for JMigrate. If you are certain no process is running, please clear the table `jmigrate_lock` and try again.",
       ex.getMessage()
     );
     thread.interrupt();

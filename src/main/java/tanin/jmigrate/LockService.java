@@ -31,11 +31,11 @@ public class LockService {
   }
 
   public void acquireLock(String salt) throws SQLException, InterruptedException, TimeoutException {
-    logger.info("Acquiring lock for MigrateDB");
+    logger.info("Acquiring lock for JMigrate");
     var deadline = Instant.now().plus(timeoutInSeconds, ChronoUnit.SECONDS);
     while (true) {
       if ((Instant.now().isAfter(deadline))) {
-        throw new TimeoutException("Unable to acquire the lock for MigrateDB. If you are certain no process is running, please clear the table `jmigrate_lock` and try again.");
+        throw new TimeoutException("Unable to acquire the lock for JMigrate. If you are certain no process is running, please clear the table `jmigrate_lock` and try again.");
       }
 
       try {
@@ -50,22 +50,22 @@ public class LockService {
         break;
       } catch (SQLException e) {
         if (e.getSQLState().equals("23505")) {
-          logger.info("Unable to acquire the lock for MigrateDB. Sleeping for 1 second...");
+          logger.info("Unable to acquire the lock for JMigrate. Sleeping for 1 second...");
           Thread.sleep(1000);
         } else {
           throw e;
         }
       }
     }
-    logger.info("Acquired lock for MigrateDB");
+    logger.info("Acquired lock for JMigrate");
   }
 
   public void releaseLock(String salt) throws SQLException {
-    logger.info("Releasing lock for MigrateDB");
+    logger.info("Releasing lock for JMigrate");
     connection.execute(
       "DELETE FROM \"jmigrate_lock\" WHERE \"salt\" = ?",
       new Object[]{salt}
     );
-    logger.info("Released lock for MigrateDB");
+    logger.info("Released lock for JMigrate");
   }
 }
