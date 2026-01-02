@@ -43,9 +43,11 @@ First of all, please include JMigrate as your dependency:
 <dependency>
     <groupId>io.github.tanin47</groupId>
     <artifactId>jmigrate</artifactId>
-    <version>0.1.0</version>
+    <version>LATEST_VERSION_CHECK_MAVEN_CENTRAL</version>
 </dependency>
 ```
+
+You can check the latest version here: https://central.sonatype.com/artifact/io.github.tanin47/jmigrate
 
 Then, you put your migration scripts under `./src/resources/migrations`. 
 Your scripts should be numbered as follows: `1.sql`, `2.sql`, `3.sql`, and so on.

@@ -32,9 +32,10 @@ public class JMigrate implements AutoCloseable {
     String databaseUrl,
     Class<?> resourceClassLoader,
     String scriptDir
-  ) throws SQLException, URISyntaxException, InterruptedException, TimeoutException {
-    var jmigrate = new JMigrate(databaseUrl, new MigrateScriptDir(resourceClassLoader, scriptDir));
-    jmigrate.migrate();
+  ) throws Exception {
+    try (var jmigrate = new JMigrate(databaseUrl, new MigrateScriptDir(resourceClassLoader, scriptDir))) {
+      jmigrate.migrate();
+    }
   }
 
   public JMigrate(
