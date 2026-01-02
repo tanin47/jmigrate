@@ -40,7 +40,7 @@ jobs:
           else
             TAG=${GITHUB_REF#refs/tags/}
           fi
-          if [[ ! $TAG == web-${{ steps.version.outputs.VERSION }} ]]; then
+          if [[ ! $TAG == ${{ steps.version.outputs.VERSION }} ]]; then
             echo "Error: Tag version ($TAG) does not match project version (${{ steps.version.outputs.VERSION }})"
             exit 1
           fi
@@ -53,7 +53,7 @@ jobs:
         with:
           draft: false
           prerelease: false
-          files: ./web/build/staging-deploy/io/github/tanin47/**/*
+          files: ./build/staging-deploy/io/github/tanin47/**/*
           overwrite_files: true
           fail_on_unmatched_files: true
           generate_release_notes: true
