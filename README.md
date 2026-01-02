@@ -1,4 +1,4 @@
-JMigrate: database migration management for Java/Android apps
+JMigrate: database migration management for Java apps
 ==============================================================
 
 [![Sonatype Central](https://maven-badges.sml.io/sonatype-central/io.github.tanin47/jmigrate/badge.png)](https://central.sonatype.com/artifact/io.github.tanin47/jmigrate)
@@ -7,7 +7,7 @@ JMigrate: database migration management for Java/Android apps
 
 JMigrate is a simple and reliable pure Java library for managing database migrations.
 
-It is excellent for desktop and android applications given the below characteristics:
+It is excellent for desktop applications given the below characteristics:
 - 📦 Zero external dependencies.
 - 🔄 Support loading the database migration scripts from Java's resources with in a JAR file.
 - 📝 Simple database migration scripts with numbering from 1.sql, 2.sql, and so on.
