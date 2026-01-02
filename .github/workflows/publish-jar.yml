@@ -1,15 +1,18 @@
 name: publish-jar
 
 on:
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Optional tag (starts with `web-`). Default to the tag of the selected branch.'
+        description: 'Optional tag (e.g. `1.2.3`). Default to the tag of the selected branch.'
         required: false
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
