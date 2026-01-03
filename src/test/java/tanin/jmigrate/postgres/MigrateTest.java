@@ -3,17 +3,17 @@ package tanin.jmigrate.postgres;
 import org.junit.jupiter.api.Test;
 import tanin.jmigrate.JMigrate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MigrateTest extends Base {
   @Test
   void migrateAndAutoRollback() throws Exception {
     // We want to test the static method:
-    JMigrate.migrate(DATABASE_URL, MigrateTest.class, "/postgres/testsql");
+    JMigrate.migrate(DATABASE_URL, MigrateTest.class, "/postgres/testsql", false);
 
     var scriptDir = new JMigrate.MigrateScriptDir(MigrateTest.class, "/postgres/testsql");
-    var migrate = new JMigrate(DATABASE_URL, scriptDir);
+    var migrate = new JMigrate(DATABASE_URL, scriptDir, true);
     var scripts = JMigrate.getMigrateScripts(scriptDir);
     var alreadyMigratedScripts = migrate.alreadyMigratedScriptService.getAll();
     assertSameScripts(scripts, alreadyMigratedScripts);
@@ -32,8 +32,17 @@ public class MigrateTest extends Base {
       assertFalse(rs.next()); // no lock
     });
 
-    // Run it again and it should succeed and do nothing.
-    JMigrate.migrate(DATABASE_URL, MigrateTest.class, "/postgres/testsql");
+    // Simulate changing 2.sql but not disallowing rollback
+    migrate.databaseConnection.execute("UPDATE jmigrate_already_migrated_script SET up_script = 'something else' WHERE id = 2;");
+    alreadyMigratedScripts = migrate.alreadyMigratedScriptService.getAll();
+    assertEquals("something else", alreadyMigratedScripts[1].up());
+
+    var ex = assertThrows(
+      JMigrate.ExecutingDownScriptForbiddenException.class,
+      () -> JMigrate.migrate(DATABASE_URL, MigrateTest.class, "/postgres/testsql", false)
+    );
+    System.out.println(ex.getMessage());
+    assertTrue(ex.getMessage().contains("2.sql"));
   }
 
   @Test

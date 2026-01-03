@@ -14,7 +14,7 @@ public class LockTest extends Base {
     var scriptDir = new JMigrate.MigrateScriptDir(LockTest.class, "/postgres/timeoutsql");
     var thread = new Thread(() -> {
       try {
-        var migrate = new JMigrate(DATABASE_URL, scriptDir);
+        var migrate = new JMigrate(DATABASE_URL, scriptDir, false);
         migrate.migrate();
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -24,7 +24,7 @@ public class LockTest extends Base {
     Thread.sleep(500); // Ensure the thread starts running...
 
     var ex = assertThrows(TimeoutException.class, () -> {
-      var migrate = new JMigrate(DATABASE_URL, scriptDir);
+      var migrate = new JMigrate(DATABASE_URL, scriptDir, false);
       migrate.lockService.timeoutInSeconds = 3;
       migrate.migrate();
     });

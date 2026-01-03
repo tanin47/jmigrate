@@ -17,10 +17,10 @@ public class LockService {
   }
 
   public interface Process {
-    void process() throws SQLException;
+    void process() throws SQLException, JMigrate.ExecutingDownScriptForbiddenException;
   }
 
-  void lock(Process process) throws SQLException, InterruptedException, TimeoutException {
+  void lock(Process process) throws SQLException, InterruptedException, TimeoutException, JMigrate.ExecutingDownScriptForbiddenException {
     var salt = java.util.UUID.randomUUID().toString();
     try {
       acquireLock(salt);

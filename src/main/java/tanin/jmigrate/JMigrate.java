@@ -19,6 +19,7 @@ public class JMigrate implements AutoCloseable {
   public final DatabaseConnection databaseConnection;
   public final LockService lockService;
   public final MigrateScriptDir migrateScriptDir;
+  public final boolean allowExecutingDownScripts;
 
   @Override
   public void close() throws Exception {
@@ -28,35 +29,46 @@ public class JMigrate implements AutoCloseable {
   public record MigrateScriptDir(Class<?> classLoader, String path) {
   }
 
+  public static class ExecutingDownScriptForbiddenException extends Exception {
+    public ExecutingDownScriptForbiddenException(String message) {
+      super(message);
+    }
+  }
+
   public static void migrate(
     String databaseUrl,
     Class<?> resourceClassLoader,
-    String scriptDir
+    String scriptDir,
+    boolean allowExecutingDownScripts
   ) throws Exception {
-    try (var jmigrate = new JMigrate(databaseUrl, new MigrateScriptDir(resourceClassLoader, scriptDir))) {
+    try (var jmigrate = new JMigrate(databaseUrl, new MigrateScriptDir(resourceClassLoader, scriptDir), allowExecutingDownScripts)) {
       jmigrate.migrate();
     }
   }
 
   public JMigrate(
     String databaseUrl,
-    MigrateScriptDir migrateScriptDir
+    MigrateScriptDir migrateScriptDir,
+    boolean allowExecutingDownScripts
   ) throws SQLException, URISyntaxException {
     this(
       new DatabaseConnection(databaseUrl),
-      migrateScriptDir
+      migrateScriptDir,
+      allowExecutingDownScripts
     );
   }
 
   public JMigrate(
     DatabaseConnection databaseConnection,
-    MigrateScriptDir migrateScriptDir
+    MigrateScriptDir migrateScriptDir,
+    boolean allowExecutingDownScripts
   ) {
     this(
       new AlreadyMigratedScriptService(databaseConnection),
       new LockService(databaseConnection),
       databaseConnection,
-      migrateScriptDir
+      migrateScriptDir,
+      allowExecutingDownScripts
     );
   }
 
@@ -64,12 +76,14 @@ public class JMigrate implements AutoCloseable {
     AlreadyMigratedScriptService alreadyMigratedScriptService,
     LockService lockService,
     DatabaseConnection databaseConnection,
-    MigrateScriptDir migrateScriptDir
+    MigrateScriptDir migrateScriptDir,
+    boolean allowExecutingDownScripts
   ) {
     this.lockService = lockService;
     this.databaseConnection = databaseConnection;
     this.alreadyMigratedScriptService = alreadyMigratedScriptService;
     this.migrateScriptDir = migrateScriptDir;
+    this.allowExecutingDownScripts = allowExecutingDownScripts;
   }
 
   public static MigrateScript[] getMigrateScripts(MigrateScriptDir migrateScriptDir) {
@@ -114,7 +128,7 @@ public class JMigrate implements AutoCloseable {
       );""");
   }
 
-  public void migrate() throws SQLException, InterruptedException, TimeoutException {
+  public void migrate() throws SQLException, InterruptedException, TimeoutException, ExecutingDownScriptForbiddenException {
     setUpIfNeeded();
 
     lockService.lock(() -> {
@@ -134,7 +148,7 @@ public class JMigrate implements AutoCloseable {
         }
       }
 
-      applyDown(alreadyMigratedScripts, startIndex);
+      applyDown(alreadyMigratedScripts, startIndex, migrateScripts);
       applyUp(migrateScripts, startIndex);
     });
   }
@@ -153,8 +167,21 @@ public class JMigrate implements AutoCloseable {
     }
   }
 
-  public void applyDown(AlreadyMigratedScript[] alreadyMigratedScripts, int leastRollbackedIndex) {
+  public void applyDown(
+    AlreadyMigratedScript[] alreadyMigratedScripts,
+    int leastRollbackedIndex,
+    MigrateScript[] migrateScripts
+  ) throws ExecutingDownScriptForbiddenException {
     for (var i = alreadyMigratedScripts.length - 1; i >= leastRollbackedIndex; i--) {
+      if (!allowExecutingDownScripts) {
+        var scriptFilename = alreadyMigratedScripts[leastRollbackedIndex].id() + ".sql";
+        throw new ExecutingDownScriptForbiddenException(
+          scriptFilename + " has changed, but executing down scripts is forbidden (`allowExecutingDownScripts` is false)." +
+            " In production, `allowExecutingDownScripts` should be false. You can fix it by either reverting " + scriptFilename + " or modifying the database table `jmigrate_already_migrated_script`." +
+            " In development, you should set `allowExecutingDownScripts` to true. See more: https://github.com/tanin47/jmigrate?tab=readme-ov-file#how-to-use-it"
+        );
+      }
+
       logger.info("Applying the down script of " + alreadyMigratedScripts[i].id() + ".sql (previous version)");
       try {
         databaseConnection.execute(alreadyMigratedScripts[i].down());
@@ -182,10 +209,10 @@ public class JMigrate implements AutoCloseable {
       } else if (DOWN_MARKER.matcher(line.trim()).matches()) {
         current = "down";
       } else if (current.equals("up")) {
-        up.append(line);
+        up.append(line.stripTrailing());
         up.append('\n');
       } else if (current.equals("down")) {
-        down.append(line);
+        down.append(line.stripTrailing());
         down.append('\n');
       }
     }
