@@ -23,10 +23,10 @@ Try it out for your apps today! Please don't hesitate to open an issue if you ha
 
 ### Supported Databases
 
-| Database      | Status        |
-|---------------|---------------|
-| PostgreSQL    | ✅ Supported   |
-| SQLite        | 🔜 Coming Soon |
+| Database      | Status         |
+|---------------|----------------|
+| PostgreSQL    | ✅ Supported    |
+| SQLite        | ✅ Supported    |
 | MySQL         | 🔜 Coming Soon |
 | MariaDB       | 🔜 Coming Soon |
 | Oracle        | 🔜 Coming Soon |

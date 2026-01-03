@@ -96,38 +96,22 @@ public class JMigrate implements AutoCloseable {
   }
 
   public void setUpIfNeeded() throws SQLException {
-    try {
-      databaseConnection.execute("""
-        CREATE TABLE IF NOT EXISTS "jmigrate_already_migrated_script"
-        (
-            id          INT       NOT NULL PRIMARY KEY,
-            up_script   TEXT      NOT NULL,
-            down_script TEXT      NOT NULL,
-            applied_at  TIMESTAMP NOT NULL
-        );""");
-    } catch (SQLException e) {
-      if (e.getMessage().contains("pg_type_typname_nsp_index")) {
-        // ignore
-      } else {
-        throw e;
-      }
-    }
+    databaseConnection.execute("""
+      CREATE TABLE IF NOT EXISTS "jmigrate_already_migrated_script"
+      (
+          id          INT       NOT NULL PRIMARY KEY,
+          up_script   TEXT      NOT NULL,
+          down_script TEXT      NOT NULL,
+          applied_at  TIMESTAMP NOT NULL
+      );""");
 
-    try {
-      databaseConnection.execute("""
-        CREATE TABLE IF NOT EXISTS "jmigrate_lock"
-        (
-            locked      BOOL      NOT NULL UNIQUE,
-            salt        TEXT      NOT NULL,
-            acquired_at TIMESTAMP NOT NULL
-        );""");
-    } catch (SQLException e) {
-      if (e.getMessage().contains("pg_type_typname_nsp_index")) {
-        // ignore
-      } else {
-        throw e;
-      }
-    }
+    databaseConnection.execute("""
+      CREATE TABLE IF NOT EXISTS "jmigrate_lock"
+      (
+          locked      BOOL      NOT NULL UNIQUE,
+          salt        TEXT      NOT NULL,
+          acquired_at TIMESTAMP NOT NULL
+      );""");
   }
 
   public void migrate() throws SQLException, InterruptedException, TimeoutException {

@@ -38,9 +38,10 @@ repositories {
 
 dependencies {
     implementation("com.renomad:minum:8.3.2")
-    runtimeOnly("org.postgresql:postgresql:42.7.8")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.1")
+    testImplementation("org.postgresql:postgresql:42.7.8")
+    testImplementation("org.xerial:sqlite-jdbc:3.51.0.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
