@@ -13,7 +13,7 @@ public class DatabaseConnection implements AutoCloseable {
   private static final Logger logger = Logger.getLogger(DatabaseConnection.class.getName());
   public Connection connection;
 
-  DatabaseConnection(String url) throws SQLException, URISyntaxException {
+  public DatabaseConnection(String url) throws SQLException, URISyntaxException {
     var props = new Properties();
 
     if (url.startsWith("jdbc:postgres")) {

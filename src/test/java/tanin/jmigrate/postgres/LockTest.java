@@ -1,6 +1,8 @@
-package tanin.jmigrate;
+package tanin.jmigrate.postgres;
 
 import org.junit.jupiter.api.Test;
+import tanin.jmigrate.DatabaseConnection;
+import tanin.jmigrate.JMigrate;
 
 import java.util.concurrent.TimeoutException;
 
@@ -9,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class LockTest extends Base {
   @Test
   void throwTimeout() throws Exception {
-    var scriptDir = new JMigrate.MigrateScriptDir(LockTest.class, "/timeoutsql");
+    var scriptDir = new JMigrate.MigrateScriptDir(LockTest.class, "/postgres/timeoutsql");
     var thread = new Thread(() -> {
       try {
-        var migrate = new JMigrate(POSTGRES_DATABASE_URL, scriptDir);
+        var migrate = new JMigrate(DATABASE_URL, scriptDir);
         migrate.migrate();
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -22,7 +24,7 @@ public class LockTest extends Base {
     Thread.sleep(500); // Ensure the thread starts running...
 
     var ex = assertThrows(TimeoutException.class, () -> {
-      var migrate = new JMigrate(POSTGRES_DATABASE_URL, scriptDir);
+      var migrate = new JMigrate(DATABASE_URL, scriptDir);
       migrate.lockService.timeoutInSeconds = 3;
       migrate.migrate();
     });
@@ -32,7 +34,7 @@ public class LockTest extends Base {
     );
     thread.interrupt();
 
-    var conn = new DatabaseConnection(POSTGRES_DATABASE_URL);
+    var conn = new DatabaseConnection(DATABASE_URL);
     conn.executeQuery("SELECT * FROM jmigrate_lock", rs -> {
       assertTrue(rs.next()); // The lock still exists because Thread.interrupt() skips the finally block.
       assertFalse(rs.next()); // Only one record of lock exists.

@@ -12,7 +12,7 @@ public class AlreadyMigratedScriptService {
     this.connection = connection;
   }
 
-  AlreadyMigratedScript[] getAll() throws SQLException {
+  public AlreadyMigratedScript[] getAll() throws SQLException {
     var result = new ArrayList<AlreadyMigratedScript>();
 
     connection.executeQuery(
