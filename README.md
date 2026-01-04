@@ -1,11 +1,11 @@
-JMigrate: database migration management for Java apps
+JMigrate: database schema change management for Java apps
 ==============================================================
 
 [![Sonatype Central](https://maven-badges.sml.io/sonatype-central/io.github.tanin47/jmigrate/badge.png)](https://central.sonatype.com/artifact/io.github.tanin47/jmigrate)
 [![Github Actions](https://github.com/tanin47/jmigrate/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tanin47/jmigrate/actions/workflows/ci.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/tanin47/jmigrate/graph/badge.svg?token=SHP3UDYI7Z)](https://codecov.io/gh/tanin47/jmigrate)
 
-JMigrate is a simple and reliable pure Java library for managing database migrations.
+JMigrate is a simple and reliable pure Java library for managing database schema changes.
 
 It is excellent for desktop applications given the below characteristics:
 - 📦 Zero external dependencies.
@@ -38,7 +38,7 @@ Try it out for your apps today! Please don't hesitate to open an issue if you ha
 Recommended Development Practice
 ---------------------------------
 
-JMigrate is a painless and low-headache way of managing database schemas. It enforces that your schema changes are tracked by git.
+JMigrate is a painless and low-headache way of managing database schema changes. It enforces that your schema changes are tracked by git.
 
 When an engineer gets a new version of the source code and runs the app, their database schemas are automatically updated.
 In dev, we recommend setting `allowExecutingDownScripts` to false, so engineers aren't blocked when the down scripts (or revert scripts) need to be executed.
@@ -98,7 +98,7 @@ JMigrate.migrate(
 );
 ```
 
-JMigrate will automatically migrate the database to the final state.
+JMigrate will automatically migrate the database schema to the final state.
 
 If `allowExecutingDownScripts` is false (recommended for production), and the down scripts need to be executed, an exception of `ExecutingDownScriptForbiddenException` will be thrown.
 
