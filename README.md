@@ -17,8 +17,7 @@ It is excellent for desktop applications given the below characteristics:
 We purposefully don't include JDBC drivers because you probably already include it in your project.
 JMigrate loads an appropriate JDBC driver at runtime. It's simpler and avoid dependency conflict.
 
-JMigrate was initially built for [Backdoor](https://github.com/tanin47/backdoor), a modern database tool that focuses on querying and editing,
-and has grown to be something much more. 
+JMigrate is used by [Backdoor](https://github.com/tanin47/backdoor) and [JPing](https://github.com/tanin47/jping).
 
 Try it out for your apps today! Please don't hesitate to open an issue if you have questions.
 
